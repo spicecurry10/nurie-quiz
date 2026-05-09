@@ -735,18 +735,6 @@
     } catch (e) {}
   }
 
-  function speak(text) {
-    if (text.indexOf("せいかい") >= 0 || text.indexOf("すごい") >= 0) {
-      playEffect("correct");
-    } else if (text.indexOf("おしい") >= 0) {
-      playEffect("wrong");
-    } else if (text.indexOf("かんせい") >= 0 || text.indexOf("がんばった") >= 0) {
-      playEffect("finish");
-    } else {
-      playEffect("tap");
-    }
-  }
-
   function showScreen(id) {
     var screens = document.querySelectorAll(".screen");
     for (var i = 0; i < screens.length; i++) screens[i].classList.remove("active");
@@ -796,7 +784,7 @@
         var t = e.currentTarget.getAttribute("data-theme");
         selectedTheme = t;
         renderThemeGrid();
-        speak(themes[t].name + "にするね");
+        playEffect("tap");
       });
       grid.appendChild(b);
     }
@@ -825,7 +813,7 @@
     renderDots();
     showScreen("gameScreen");
     nextQuestion();
-    speak("はじめるよ");
+    playEffect("tap");
   }
 
   function nextQuestion() {
@@ -879,11 +867,11 @@
       fillPart(part);
       renderDots();
       $("feedback").textContent = praiseText() + "　" + q.explain;
-      speak("せいかい。すごいね");
+      playEffect("correct");
       sparkle();
     } else {
       $("feedback").textContent = "おしい！ こたえは「" + q.answer + "」。" + q.explain;
-      speak("おしい。だいじょうぶ");
+      playEffect("wrong");
     }
 
     if (session.correctParts >= session.targetParts) {
@@ -918,11 +906,11 @@
     if (session.correctParts >= 5) {
       $("finishTitle").textContent = "かんせい！ はなまる！";
       $("finishText").textContent = session.attempts + "もん がんばったよ。ぬりえが できたね。";
-      speak("かんせい。はなまる");
+      playEffect("finish");
     } else {
       $("finishTitle").textContent = "ここまで よくできたね！";
       $("finishText").textContent = session.attempts + "もん がんばったよ。つぎは もうすこし ぬってみよう。";
-      speak("よくがんばったね");
+      playEffect("finish");
     }
     showScreen("finishScreen");
   }
