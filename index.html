@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>みわの ぬりえクイズ</title>
+<title>みわの にじいろぬりえアトリエ</title>
 <style>
   :root {
     --bg1: #fff4fb;
@@ -95,6 +95,146 @@
     grid-template-columns: 1fr 1fr;
     gap: 22px;
     align-items: center;
+  }
+
+  .title-stage {
+    position: relative;
+    overflow: hidden;
+    min-height: min(720px, calc(100vh - 92px));
+    border: 0;
+    border-radius: 26px;
+    background:
+      linear-gradient(#6fc8ea 0 77%, #8bd117 77% 100%);
+    box-shadow: 0 18px 34px rgba(46, 135, 170, 0.22);
+    padding: clamp(18px, 4vw, 36px);
+  }
+
+  .title-stage::before,
+  .title-stage::after {
+    content: "";
+    position: absolute;
+    border: 3px solid rgba(255,255,255,0.82);
+    width: clamp(70px, 12vw, 116px);
+    height: clamp(70px, 12vw, 116px);
+    pointer-events: none;
+  }
+
+  .title-stage::before {
+    top: 58px;
+    left: 9%;
+    border-right: 0;
+    border-bottom: 0;
+  }
+
+  .title-stage::after {
+    top: 148px;
+    right: 10%;
+    border-left: 0;
+    border-bottom: 0;
+  }
+
+  .title-copy {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: 12px;
+    max-width: 760px;
+    margin: 0 auto;
+    color: #fff;
+  }
+
+  .studio-bubbles {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .studio-bubbles span {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: #11a45d;
+    color: #fff;
+    font-weight: 1000;
+    font-size: 20px;
+    box-shadow: 0 5px 0 rgba(0,96,62,0.2);
+  }
+
+  .title-yellow {
+    margin: 8px 0 0;
+    color: #fff21b;
+    font-size: clamp(40px, 8vw, 84px);
+    line-height: 1;
+    font-weight: 1000;
+  }
+
+  .title-main {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(42px, 9vw, 96px);
+    line-height: 1.05;
+    font-weight: 1000;
+    letter-spacing: 0.08em;
+    text-shadow: 0 4px 0 rgba(0, 110, 150, 0.12);
+  }
+
+  .tile-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 8px;
+  }
+
+  .tile-title span {
+    display: grid;
+    place-items: center;
+    min-width: clamp(46px, 8vw, 72px);
+    min-height: clamp(46px, 8vw, 72px);
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: #fff;
+    font-size: clamp(26px, 5vw, 52px);
+    line-height: 1;
+    font-weight: 1000;
+    box-shadow: 0 7px 0 rgba(0, 75, 110, 0.18);
+  }
+
+  .tile-title .orange { background: #f28b00; }
+  .tile-title .teal { background: #00a889; }
+  .tile-title .pink { background: #ec4a93; }
+  .tile-title .blue { background: #118ac4; }
+  .tile-title .yellow { background: #ffc024; }
+  .tile-title .green { background: #19a846; }
+
+  .home-art-wrap {
+    position: relative;
+    z-index: 2;
+    width: min(360px, 74vw);
+    margin: 16px auto 0;
+  }
+
+  .home-art-wrap .paint-frame {
+    padding: 10px;
+    border-radius: 22px;
+    box-shadow: 0 12px 24px rgba(0, 93, 124, 0.16);
+  }
+
+  .title-actions {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 18px auto 0;
+    max-width: 760px;
   }
 
   .title {
@@ -555,6 +695,31 @@
     .hero, .game-grid {
       grid-template-columns: 1fr;
     }
+    .title-stage {
+      min-height: calc(100vh - 76px);
+      padding: 16px 12px 18px;
+    }
+    .title-stage::before {
+      top: 52px;
+      left: 4%;
+    }
+    .title-stage::after {
+      top: 150px;
+      right: 4%;
+    }
+    .studio-bubbles span {
+      width: 35px;
+      height: 35px;
+      font-size: 16px;
+    }
+    .title-main {
+      letter-spacing: 0.04em;
+    }
+    .title-actions {
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
     .theme-grid {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -577,23 +742,32 @@
 <body>
 <div class="app">
   <div class="topbar">
-    <div class="brand">🎨 みわの ぬりえクイズ</div>
+    <div class="brand">🎨 にじいろアトリエ</div>
     <button id="homeBtn" class="btn secondary small">おうち</button>
   </div>
 
   <section id="homeScreen" class="screen active">
-    <div class="card hero">
-      <div>
-        <h1 class="title">といて、ぬって、かんせい！</h1>
-        <p class="subtitle">さんすう・こくごを とくと、えが すこしずつ かわいくなるよ。</p>
-
-        <div class="big-buttons">
-          <button id="startBtn" class="btn">はじめる ✨</button>
-          <button id="weakBtn" class="btn green">にがて れんしゅう 🌱</button>
-          <button id="statsBtn" class="btn secondary">とーと用 きろく 📊</button>
+    <div class="card title-stage">
+      <div class="title-copy">
+        <div class="studio-bubbles">
+          <span>み</span><span>わ</span><span>の</span><span>に</span><span>じ</span><span>い</span><span>ろ</span>
+        </div>
+        <div class="title-yellow">きらめく</div>
+        <h1 class="title-main">ぬりえの森</h1>
+        <div class="tile-title" aria-label="アトリエでまなぶ">
+          <span class="orange">ア</span>
+          <span class="teal">ト</span>
+          <span class="pink">リ</span>
+          <span class="blue">エ</span>
+          <span class="yellow">で</span>
+          <span class="green">まなぶ</span>
         </div>
       </div>
-      <div class="paint-frame" id="homeArt"></div>
+      <div class="title-actions">
+        <button id="startBtn" class="btn">はじめる</button>
+        <button id="weakBtn" class="btn green">にがて れんしゅう</button>
+        <button id="statsBtn" class="btn secondary">きろく</button>
+      </div>
     </div>
   </section>
 
@@ -1043,7 +1217,8 @@
   }
 
   function renderHomeArt() {
-    renderTheme("homeArt", "cake", 5);
+    var homeArt = $("homeArt");
+    if (homeArt) renderTheme("homeArt", "cake", 5);
   }
 
   function renderThemeGrid() {
