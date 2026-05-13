@@ -506,13 +506,32 @@
 
   .color-picker {
     display: none;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
     margin: 12px 0 0;
   }
 
   .color-picker.show {
+    display: block;
+  }
+
+  .tool-section {
+    margin-top: 12px;
+  }
+
+  .tool-section:first-child {
+    margin-top: 0;
+  }
+
+  .tool-label {
+    color: #6b5080;
+    font-size: 15px;
+    font-weight: 950;
+    margin: 0 0 7px;
+  }
+
+  .tool-grid {
     display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
   }
 
   .color-swatch {
@@ -547,6 +566,44 @@
     color: #6b5080;
     font-size: 14px;
     font-weight: 950;
+  }
+
+  .brush-size-picker {
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .brush-size-picker.show {
+    display: grid;
+  }
+
+  .brush-size-btn {
+    min-height: 48px;
+    border-radius: 18px;
+    border: 3px solid rgba(185,156,255,0.32);
+    background: #fff;
+    color: #6b5080;
+    font-size: 16px;
+    font-weight: 950;
+    box-shadow: 0 6px 14px rgba(119, 76, 128, 0.12);
+  }
+
+  .brush-size-btn.selected {
+    border-color: #ff8cc6;
+    background: #fff2fb;
+    box-shadow: 0 8px 18px rgba(255, 140, 198, 0.22);
+  }
+
+  .brush-size-btn::before {
+    content: "";
+    display: block;
+    width: 34px;
+    height: var(--brush-preview);
+    margin: 0 auto 4px;
+    border-radius: 999px;
+    background: #6b5080;
   }
 
   .next-row {
@@ -805,6 +862,7 @@
         <div id="choices" class="choices"></div>
         <div id="feedback" class="feedback">こたえを えらんでね。</div>
         <div id="colorPicker" class="color-picker"></div>
+        <div id="brushSizePicker" class="brush-size-picker" aria-label="ペンと消しゴムのふとさ"></div>
         <div id="nextRow" class="next-row">
           <button id="nextBtn" class="btn">つぎへ</button>
         </div>
@@ -866,10 +924,15 @@
     { color: "#ff8f8f" },
     { color: "#ffbf75", glitter: true },
     { color: "#b8845a" },
-    { color: "#ffffff" },
+    { color: "#c8f55f" },
     { color: "#63e6d7", glitter: true },
     { color: "#f4a6ff", glitter: true },
     { eraser: true }
+  ];
+  var brushSizes = [
+    { key: "thick", label: "ふとい", width: 24 },
+    { key: "medium", label: "ふつう", width: 15 },
+    { key: "thin", label: "ほそい", width: 7 }
   ];
   var selectedTheme = "cake";
   var currentScreen = "homeScreen";
@@ -1087,7 +1150,7 @@
       ctx.moveTo(p.x, p.y);
       ctx.globalCompositeOperation = session.eraserEnabled ? "destination-out" : "source-over";
       ctx.strokeStyle = session.eraserEnabled ? "rgba(0,0,0,1)" : session.paintColor;
-      ctx.lineWidth = session.eraserEnabled ? 21 : 15;
+      ctx.lineWidth = currentBrushWidth();
       ctx.globalAlpha = session.eraserEnabled ? 1 : 0.7;
       ctx.lineTo(p.x + 0.1, p.y + 0.1);
       ctx.stroke();
@@ -1121,6 +1184,11 @@
     canvas.addEventListener("pointercancel", stop);
   }
 
+  function currentBrushWidth() {
+    var width = session && session.brushWidth ? session.brushWidth : 15;
+    return session && session.eraserEnabled ? width + 6 : width;
+  }
+
   function addGlitter(ctx, x, y) {
     ctx.save();
     ctx.globalCompositeOperation = "source-over";
@@ -1152,6 +1220,12 @@
   function hideColorPicker() {
     $("colorPicker").classList.remove("show");
     $("colorPicker").innerHTML = "";
+    hideBrushSizePicker();
+  }
+
+  function hideBrushSizePicker() {
+    $("brushSizePicker").classList.remove("show");
+    $("brushSizePicker").innerHTML = "";
   }
 
   function showColorPicker(partIndex, explainText) {
@@ -1159,25 +1233,85 @@
     picker.innerHTML = "";
     picker.classList.add("show");
     $("feedback").textContent = praiseText() + "　すきな いろや けしごむを えらんでね。";
-    for (var i = 0; i < paintTools.length; i++) {
-      var tool = paintTools[i];
+    if (session && imageThemes[session.theme]) {
+      renderBrushSizePicker();
+    } else {
+      hideBrushSizePicker();
+    }
+    appendPaintToolSection(picker, "ふつうの色", paintTools.filter(function(tool) {
+      return !tool.glitter && !tool.eraser;
+    }), partIndex, explainText);
+    appendPaintToolSection(picker, "ラメ", paintTools.filter(function(tool) {
+      return tool.glitter;
+    }), partIndex, explainText);
+    appendPaintToolSection(picker, "消しゴム", paintTools.filter(function(tool) {
+      return tool.eraser;
+    }), partIndex, explainText);
+  }
+
+  function appendPaintToolSection(picker, label, tools, partIndex, explainText) {
+    if (!tools.length) return;
+    var section = document.createElement("div");
+    section.className = "tool-section";
+    var title = document.createElement("div");
+    title.className = "tool-label";
+    title.textContent = label;
+    var grid = document.createElement("div");
+    grid.className = "tool-grid";
+    section.appendChild(title);
+    section.appendChild(grid);
+    for (var i = 0; i < tools.length; i++) {
+      grid.appendChild(createPaintToolButton(tools[i], i, label, partIndex, explainText));
+    }
+    picker.appendChild(section);
+  }
+
+  function createPaintToolButton(tool, index, groupLabel, partIndex, explainText) {
+    var b = document.createElement("button");
+    b.className = "color-swatch" + (tool.glitter ? " glitter" : "") + (tool.eraser ? " eraser" : "");
+    if (tool.eraser) {
+      b.textContent = "消しゴム";
+      b.setAttribute("aria-label", "けしごむ");
+      b.setAttribute("data-eraser", "1");
+    } else {
+      b.style.background = tool.glitter ? "radial-gradient(circle at 28% 24%, #fff 0 6%, transparent 7%), radial-gradient(circle at 68% 62%, #fff 0 5%, transparent 6%), " + tool.color : tool.color;
+      b.setAttribute("aria-label", (tool.glitter ? "ラメいろ " : "いろ ") + (index + 1));
+      b.setAttribute("data-color", tool.color);
+      if (tool.glitter) b.setAttribute("data-glitter", "1");
+    }
+    bindTap(b, function(e) {
+      choosePaintTool(e.currentTarget, partIndex, explainText);
+    });
+    return b;
+  }
+
+  function renderBrushSizePicker() {
+    var picker = $("brushSizePicker");
+    picker.innerHTML = "";
+    picker.classList.add("show");
+    for (var i = 0; i < brushSizes.length; i++) {
+      var size = brushSizes[i];
       var b = document.createElement("button");
-      b.className = "color-swatch" + (tool.glitter ? " glitter" : "") + (tool.eraser ? " eraser" : "");
-      if (tool.eraser) {
-        b.textContent = "けす";
-        b.setAttribute("aria-label", "けしごむ");
-        b.setAttribute("data-eraser", "1");
-      } else {
-        b.style.background = tool.glitter ? "radial-gradient(circle at 28% 24%, #fff 0 6%, transparent 7%), radial-gradient(circle at 68% 62%, #fff 0 5%, transparent 6%), " + tool.color : tool.color;
-        b.setAttribute("aria-label", tool.glitter ? "ラメいろ " + (i + 1) : "いろ " + (i + 1));
-        b.setAttribute("data-color", tool.color);
-        if (tool.glitter) b.setAttribute("data-glitter", "1");
-      }
+      b.className = "brush-size-btn" + (session && session.brushSize === size.key ? " selected" : "");
+      b.textContent = size.label;
+      b.setAttribute("data-size", size.key);
+      b.setAttribute("data-width", size.width);
+      b.setAttribute("aria-label", (session && session.eraserEnabled ? "消しゴム" : "ペン") + "の太さ " + size.label);
+      b.style.setProperty("--brush-preview", Math.max(4, Math.round(size.width / 2)) + "px");
       bindTap(b, function(e) {
-        choosePaintTool(e.currentTarget, partIndex, explainText);
+        chooseBrushSize(e.currentTarget);
       });
       picker.appendChild(b);
     }
+  }
+
+  function chooseBrushSize(button) {
+    if (!session) return;
+    session.brushSize = button.getAttribute("data-size");
+    session.brushWidth = parseInt(button.getAttribute("data-width"), 10) || 15;
+    renderBrushSizePicker();
+    $("feedback").textContent = (session.eraserEnabled ? "消しゴム" : "ペン") + "の ふとさを「" + button.textContent + "」に したよ。";
+    playEffect("tap");
   }
 
   function choosePaintTool(button, partIndex, explainText) {
@@ -1189,7 +1323,8 @@
       session.eraserEnabled = true;
       session.glitterEnabled = false;
       session.paintEnabled = !!imageThemes[session.theme];
-      $("feedback").textContent = "けしごむに したよ。いろも えらべるよ。";
+      renderBrushSizePicker();
+      $("feedback").textContent = "消しゴムに したよ。太さも えらべるよ。";
       return;
     }
     var firstPaintForAnswer = session.pendingPaintPart === partIndex;
@@ -1202,6 +1337,7 @@
     session.glitterEnabled = button.getAttribute("data-glitter") === "1";
     session.paintEnabled = !!imageThemes[session.theme];
     if (imageThemes[session.theme]) {
+      renderBrushSizePicker();
       var board = $("gameArt").querySelector(".coloring-board");
       if (board) board.classList.add("paint-enabled");
     }
@@ -1259,6 +1395,8 @@
       colors: [],
       pendingPaintPart: null,
       paintColor: null,
+      brushSize: "medium",
+      brushWidth: 15,
       paintEnabled: false,
       eraserEnabled: false,
       glitterEnabled: false,
