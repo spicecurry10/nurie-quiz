@@ -548,13 +548,20 @@
     transform: translateY(2px) scale(0.96);
   }
 
+  .color-swatch.glitter {
+    box-shadow:
+      0 8px 18px rgba(119, 76, 128, 0.18),
+      inset 0 0 0 3px rgba(74, 59, 79, 0.24),
+      inset 0 -18px 0 rgba(255,255,255,0.16);
+  }
+
   .color-swatch.glitter::after {
     content: "ラメ";
     position: absolute;
     inset: auto 5px 5px;
     border-radius: 999px;
     padding: 2px 4px;
-    background: rgba(255,255,255,0.78);
+    background: rgba(255,255,255,0.86);
     color: #6b5080;
     font-size: 12px;
     font-weight: 950;
@@ -917,21 +924,21 @@
   var palette = ["#ff8cc6", "#ffe08a", "#83c9ff", "#9be7b0", "#b99cff"];
   var paintTools = [
     { color: "#ff8cc6" },
-    { color: "#ffe08a", glitter: true },
+    { color: "#ffd23f", glitter: true },
     { color: "#83c9ff" },
     { color: "#9be7b0" },
     { color: "#b99cff", glitter: true },
     { color: "#ff8f8f" },
-    { color: "#ffbf75", glitter: true },
+    { color: "#ff8a2a", glitter: true },
     { color: "#b8845a" },
     { color: "#c8f55f" },
-    { color: "#63e6d7", glitter: true },
-    { color: "#f4a6ff", glitter: true },
+    { color: "#00c2b8", glitter: true },
+    { color: "#f04cff", glitter: true },
     { color: "#2f2d28" },
     { color: "#4a3b4f" },
-    { color: "#ff6fd8", glitter: true },
+    { color: "#2f8cff", glitter: true },
     { color: "#7fddff" },
-    { color: "#d6a3ff", glitter: true },
+    { color: "#7ed957", glitter: true },
     { eraser: true }
   ];
   var brushSizes = [
@@ -1280,7 +1287,7 @@
       b.setAttribute("aria-label", "けしごむ");
       b.setAttribute("data-eraser", "1");
     } else {
-      b.style.background = tool.glitter ? "radial-gradient(circle at 28% 24%, #fff 0 6%, transparent 7%), radial-gradient(circle at 68% 62%, #fff 0 5%, transparent 6%), " + tool.color : tool.color;
+      b.style.background = tool.glitter ? "linear-gradient(135deg, rgba(255,255,255,0.38) 0 16%, transparent 17% 46%, rgba(74,59,79,0.18) 47% 52%, transparent 53%), radial-gradient(circle at 25% 22%, #fff 0 5%, transparent 6%), radial-gradient(circle at 72% 54%, #fff 0 4%, transparent 5%), " + tool.color : tool.color;
       b.setAttribute("aria-label", (tool.glitter ? "ラメいろ " : "いろ ") + (index + 1));
       b.setAttribute("data-color", tool.color);
       if (tool.glitter) b.setAttribute("data-glitter", "1");
