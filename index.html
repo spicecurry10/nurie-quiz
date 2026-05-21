@@ -957,7 +957,8 @@
     number_sense: "かずの感覚",
     kana: "ひらがな",
     vocab: "ことば",
-    reading: "文のりかい"
+    reading: "文のりかい",
+    particles: "ことばのつなぎ"
   };
 
   var data = loadData();
@@ -1627,17 +1628,18 @@
   }
 
   function makeAddQuestion() {
-    var max = skillStrong("math_add") ? 8 : 5;
+    var max = skillStrong("math_add") ? 10 : 6;
+    var limit = skillStrong("math_add") ? 20 : 12;
     var a = rand(1, max);
     var b = rand(1, max);
-    if (a + b > 12) b = 12 - a;
+    if (a + b > limit) b = limit - a;
     if (b < 1) b = 1;
     var ans = a + b;
     return buildQuestion("さんすう", "math_add", a + " + " + b + " = ？", ans, a + " と " + b + " を あわせると " + ans + "。");
   }
 
   function makeSubQuestion() {
-    var max = skillStrong("math_sub") ? 12 : 8;
+    var max = skillStrong("math_sub") ? 20 : 10;
     var a = rand(3, max);
     var b = rand(1, a - 1);
     var ans = a - b;
@@ -1645,9 +1647,10 @@
   }
 
   function makeNumberSenseQuestion() {
-    var a = rand(1, 12);
-    var b = rand(1, 12);
-    while (b === a) b = rand(1, 12);
+    var max = skillStrong("number_sense") ? 20 : 12;
+    var a = rand(1, max);
+    var b = rand(1, max);
+    while (b === a) b = rand(1, max);
     var bigger = Math.max(a, b);
     var smaller = Math.min(a, b);
     if (Math.random() < 0.5) {
@@ -1671,9 +1674,12 @@
   }
 
   function makeWordMathQuestion() {
-    var a = rand(2, 7);
-    var b = rand(1, 4);
+    var harder = skillStrong("math_add") || skillStrong("math_sub");
+    var a = harder ? rand(5, 15) : rand(2, 7);
+    var b = harder ? rand(2, 8) : rand(1, 4);
     if (Math.random() < 0.5) {
+      if (a + b > 20) b = 20 - a;
+      if (b < 1) b = 1;
       var ans = a + b;
       return buildQuestion("ぶんしょうだい", "math_add", "りんごが " + a + "こ。さらに " + b + "こ。ぜんぶで？", ans, "ぜんぶで " + ans + "こ だね。");
     } else {
@@ -1685,9 +1691,10 @@
 
   function makeJapaneseQuestion() {
     var r = Math.random();
-    if (r < 0.34) return makeKanaQuestion();
-    if (r < 0.67) return makeVocabQuestion();
-    return makeReadingQuestion();
+    if (r < 0.25) return makeKanaQuestion();
+    if (r < 0.5) return makeVocabQuestion();
+    if (r < 0.75) return makeReadingQuestion();
+    return makeParticleQuestion();
   }
 
   function makeKanaQuestion() {
@@ -1719,7 +1726,9 @@
       { prompt: "「りんご」と おなじ なかまは？", answer: "みかん", choices: ["みかん", "つくえ", "くつ", "えんぴつ"], explain: "りんごも みかんも くだものだね。" },
       { prompt: "「あか」と おなじ なかまは？", answer: "あお", choices: ["あお", "ねこ", "ごはん", "はしる"], explain: "あかも あおも いろだね。" },
       { prompt: "「はしる」と おなじ なかまは？", answer: "とぶ", choices: ["とぶ", "りぼん", "さかな", "みどり"], explain: "はしるも とぶも うごきだね。" },
-      { prompt: "「おはな」は どこに さく？", answer: "にわ", choices: ["にわ", "そら", "うみ", "れいぞうこ"], explain: "おはなは にわや はたけに さくね。" }
+      { prompt: "「おはな」は どこに さく？", answer: "にわ", choices: ["にわ", "そら", "うみ", "れいぞうこ"], explain: "おはなは にわや はたけに さくね。" },
+      { prompt: "「あさ」と はんたいに ちかい ことばは？", answer: "よる", choices: ["よる", "あめ", "ねこ", "あお"], explain: "あさと よるは じかんの ことばだね。" },
+      { prompt: "「おおきい」と はんたいに ちかい ことばは？", answer: "ちいさい", choices: ["ちいさい", "あかい", "はやい", "まるい"], explain: "おおきいの はんたいは ちいさいだね。" }
     ];
     var s = sets[rand(0, sets.length - 1)];
     return {
@@ -1738,12 +1747,34 @@
       { prompt: "「あめが ふっています。」ふっているのは？", answer: "あめ", choices: ["あめ", "ゆき", "はな"], explain: "ふっているのは あめだね。" },
       { prompt: "「みわは えを かきます。」みわは なにを かく？", answer: "え", choices: ["え", "ごはん", "くつ"], explain: "みわは えを かくね。" },
       { prompt: "「うさぎが にんじんを たべます。」たべるものは？", answer: "にんじん", choices: ["にんじん", "さかな", "ぼうし"], explain: "うさぎは にんじんを たべるね。" },
-      { prompt: "「ほしが きらきら ひかります。」ひかるのは？", answer: "ほし", choices: ["ほし", "ねこ", "りんご"], explain: "ほしが ひかるね。" }
+      { prompt: "「ほしが きらきら ひかります。」ひかるのは？", answer: "ほし", choices: ["ほし", "ねこ", "りんご"], explain: "ほしが ひかるね。" },
+      { prompt: "「みわは かさを もちました。そとは あめです。」みわが もったものは？", answer: "かさ", choices: ["かさ", "くつ", "ほん"], explain: "あめなので かさを もったね。" },
+      { prompt: "「ねこは はこに はいりました。はこの なかで ねています。」ねこは どこに いる？", answer: "はこ", choices: ["はこ", "そら", "うみ"], explain: "ねこは はこの なかに いるね。" },
+      { prompt: "「りんごを 2こ かいました。あとで 1こ たべました。」たべたものは？", answer: "りんご", choices: ["りんご", "みかん", "ぱん"], explain: "たべたのは りんごだね。" }
     ];
     var q = qs[rand(0, qs.length - 1)];
     return {
       label: "文のりかい",
       skill: "reading",
+      prompt: q.prompt,
+      choices: shuffle(q.choices.slice(0)),
+      answer: q.answer,
+      explain: q.explain
+    };
+  }
+
+  function makeParticleQuestion() {
+    var qs = [
+      { prompt: "「みわ（　）えを かく。」に はいる ことばは？", answer: "は", choices: ["は", "を", "へ"], explain: "だれがするかをいうときは「みわは」だね。" },
+      { prompt: "「ねこ（　）ごはんを たべる。」に はいる ことばは？", answer: "が", choices: ["が", "を", "に"], explain: "だれがするかをいうときは「ねこが」だね。" },
+      { prompt: "「りんご（　）たべる。」に はいる ことばは？", answer: "を", choices: ["を", "は", "へ"], explain: "なにをするかをいうときは「りんごを」だね。" },
+      { prompt: "「がっこう（　）いく。」に はいる ことばは？", answer: "へ", choices: ["へ", "を", "が"], explain: "いくところをいうときは「がっこうへ」だね。" },
+      { prompt: "「つくえ（　）ほんを おく。」に はいる ことばは？", answer: "に", choices: ["に", "を", "は"], explain: "おくところをいうときは「つくえに」だね。" }
+    ];
+    var q = qs[rand(0, qs.length - 1)];
+    return {
+      label: "ことばのつなぎ",
+      skill: "particles",
       prompt: q.prompt,
       choices: shuffle(q.choices.slice(0)),
       answer: q.answer,
