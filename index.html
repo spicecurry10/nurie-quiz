@@ -1620,8 +1620,11 @@
 
   function makeEasyQuestion() {
     if (Math.random() < 0.5) {
-      var a = rand(1, 4);
-      var b = rand(1, 3);
+      var a = rand(5, 10);
+      var b = rand(1, 8);
+      if (a + b > 18) b = 18 - a;
+      if (b < 1) b = 1;
+      if (a + b < 10) b = 10 - a;
       var ans = a + b;
       return buildQuestion("さんすう", "math_add", a + " + " + b + " = ？", ans, "あわせると " + ans + " だね。");
     }
@@ -1630,36 +1633,59 @@
 
   function makeMathQuestion() {
     var r = Math.random();
-    if (r < 0.35) return makeAddQuestion();
-    if (r < 0.65) return makeSubQuestion();
+    if (r < 0.32) return makeAddQuestion();
+    if (r < 0.62) return makeSubQuestion();
     if (r < 0.82) return makeNumberSenseQuestion();
     return makeWordMathQuestion();
   }
 
   function makeAddQuestion() {
-    var max = skillStrong("math_add") ? 10 : 6;
-    var limit = skillStrong("math_add") ? 20 : 12;
-    var a = rand(1, max);
-    var b = rand(1, max);
+    if (skillStrong("math_add") && Math.random() < 0.25) return makeThreeNumberQuestion();
+    var a = rand(skillStrong("math_add") ? 7 : 6, 14);
+    var b = rand(2, 9);
+    var limit = 20;
     if (a + b > limit) b = limit - a;
     if (b < 1) b = 1;
+    if (a + b < 10) b = Math.min(9, 10 - a);
     var ans = a + b;
     return buildQuestion("さんすう", "math_add", a + " + " + b + " = ？", ans, a + " と " + b + " を あわせると " + ans + "。");
   }
 
+  function makeThreeNumberQuestion() {
+    var a = rand(2, 9);
+    var b = rand(2, 8);
+    var c = rand(1, 6);
+    while (a + b + c > 20 && c > 1) c--;
+    while (a + b + c > 20 && b > 2) b--;
+    var ans = a + b + c;
+    return buildQuestion("さんすう", "math_add", a + " + " + b + " + " + c + " = ？", ans, "3つの かずを あわせると " + ans + "。");
+  }
+
   function makeSubQuestion() {
-    var max = skillStrong("math_sub") ? 20 : 10;
-    var a = rand(3, max);
-    var b = rand(1, a - 1);
+    var a = rand(skillStrong("math_sub") ? 12 : 10, 20);
+    var b = rand(2, 9);
+    if (b >= a) b = a - 1;
     var ans = a - b;
     return buildQuestion("さんすう", "math_sub", a + " - " + b + " = ？", ans, a + " から " + b + " を とると " + ans + "。");
   }
 
   function makeNumberSenseQuestion() {
-    var max = skillStrong("number_sense") ? 20 : 12;
-    var a = rand(1, max);
-    var b = rand(1, max);
-    while (b === a) b = rand(1, max);
+    var r = Math.random();
+    if (r < 0.35) {
+      var tens = rand(2, 9);
+      var ones = rand(0, 9);
+      var n = tens * 10 + ones;
+      return buildQuestion("100までのかず", "number_sense", "10の まとまりが " + tens + "こ、1が " + ones + "こ。いくつ？", n, n + " は 10が " + tens + "こ と 1が " + ones + "こ だね。");
+    }
+    if (r < 0.65) {
+      var base = rand(20, 89);
+      var target = Math.random() < 0.5 ? base + 1 : base - 1;
+      var word = target > base ? "1 おおきい" : "1 ちいさい";
+      return buildQuestion("100までのかず", "number_sense", base + " より " + word + " かずは？", target, base + " の となりの かずは " + target + "。");
+    }
+    var a = rand(1, 99);
+    var b = rand(1, 99);
+    while (b === a) b = rand(1, 99);
     var bigger = Math.max(a, b);
     var smaller = Math.min(a, b);
     if (Math.random() < 0.5) {
@@ -1683,19 +1709,26 @@
   }
 
   function makeWordMathQuestion() {
-    var harder = skillStrong("math_add") || skillStrong("math_sub");
-    var a = harder ? rand(5, 15) : rand(2, 7);
-    var b = harder ? rand(2, 8) : rand(1, 4);
-    if (Math.random() < 0.5) {
+    var r = Math.random();
+    if (r < 0.42) {
+      var a = rand(8, 15);
+      var b = rand(3, 8);
       if (a + b > 20) b = 20 - a;
       if (b < 1) b = 1;
       var ans = a + b;
-      return buildQuestion("ぶんしょうだい", "math_add", "りんごが " + a + "こ。さらに " + b + "こ。ぜんぶで？", ans, "ぜんぶで " + ans + "こ だね。");
-    } else {
-      if (b >= a) b = a - 1;
-      var ans2 = a - b;
-      return buildQuestion("ぶんしょうだい", "math_sub", "あめが " + a + "こ。" + b + "こ たべた。のこりは？", ans2, "のこりは " + ans2 + "こ だね。");
+      return buildQuestion("ぶんしょうだい", "math_add", "シールが " + a + "まい。あとで " + b + "まい もらった。ぜんぶで？", ans, "ぜんぶで " + ans + "まい だね。");
     }
+    if (r < 0.82) {
+      var a2 = rand(12, 20);
+      var b2 = rand(3, 9);
+      if (b2 >= a2) b2 = a2 - 1;
+      var ans2 = a2 - b2;
+      return buildQuestion("ぶんしょうだい", "math_sub", "えんぴつが " + a2 + "ほん。" + b2 + "ほん つかった。のこりは？", ans2, "のこりは " + ans2 + "ほん だね。");
+    }
+    var big = rand(12, 20);
+    var small = rand(5, big - 3);
+    var diff = big - small;
+    return buildQuestion("ぶんしょうだい", "math_sub", "あかい はなが " + big + "こ。しろい はなが " + small + "こ。ちがいは？", diff, "ちがいは " + diff + "こ だね。");
   }
 
   function makeJapaneseQuestion() {
@@ -1708,12 +1741,12 @@
 
   function makeKanaQuestion() {
     var words = [
-      ["ねこ", "ね"], ["いぬ", "い"], ["さくら", "さ"], ["りんご", "り"],
-      ["くるま", "く"], ["ほし", "ほ"], ["はな", "は"], ["うさぎ", "う"],
-      ["みかん", "み"], ["けーき", "け"]
+      ["がっこう", "っ"], ["きって", "っ"], ["しゃしん", "ゃ"], ["きゅうり", "ゅ"],
+      ["ちょきん", "ょ"], ["おとうさん", "う"], ["おかあさん", "あ"], ["せんせい", "い"],
+      ["びょういん", "ょ"], ["ちいさい", "い"]
     ];
     var item = words[rand(0, words.length - 1)];
-    var all = ["あ","い","う","え","お","か","き","く","け","こ","さ","し","す","せ","そ","ね","り","は","ほ","み"];
+    var all = ["あ","い","う","え","お","っ","ゃ","ゅ","ょ","ん","せ","し","ち","き","こ","さ","と","う","か","い"];
     var choices = [item[1]];
     while (choices.length < 4) {
       var c = all[rand(0, all.length - 1)];
@@ -1722,22 +1755,22 @@
     return {
       label: "ひらがな",
       skill: "kana",
-      prompt: "「" + item[0] + "」の はじめの もじは？",
+      prompt: "「" + item[0] + "」で 気をつけて よむ もじは？",
       choices: shuffle(choices),
       answer: item[1],
-      explain: "「" + item[0] + "」は「" + item[1] + "」から はじまるね。"
+      explain: "「" + item[0] + "」には「" + item[1] + "」の おとが 入っているね。"
     };
   }
 
   function makeVocabQuestion() {
     var sets = [
-      { prompt: "「ねこ」と おなじ なかまは？", answer: "いぬ", choices: ["いぬ", "くるま", "けーき", "ぼうし"], explain: "ねこも いぬも どうぶつだね。" },
-      { prompt: "「りんご」と おなじ なかまは？", answer: "みかん", choices: ["みかん", "つくえ", "くつ", "えんぴつ"], explain: "りんごも みかんも くだものだね。" },
-      { prompt: "「あか」と おなじ なかまは？", answer: "あお", choices: ["あお", "ねこ", "ごはん", "はしる"], explain: "あかも あおも いろだね。" },
-      { prompt: "「はしる」と おなじ なかまは？", answer: "とぶ", choices: ["とぶ", "りぼん", "さかな", "みどり"], explain: "はしるも とぶも うごきだね。" },
-      { prompt: "「おはな」は どこに さく？", answer: "にわ", choices: ["にわ", "そら", "うみ", "れいぞうこ"], explain: "おはなは にわや はたけに さくね。" },
-      { prompt: "「あさ」と はんたいに ちかい ことばは？", answer: "よる", choices: ["よる", "あめ", "ねこ", "あお"], explain: "あさと よるは じかんの ことばだね。" },
-      { prompt: "「おおきい」と はんたいに ちかい ことばは？", answer: "ちいさい", choices: ["ちいさい", "あかい", "はやい", "まるい"], explain: "おおきいの はんたいは ちいさいだね。" }
+      { prompt: "「あつい」と はんたいに ちかい ことばは？", answer: "つめたい", choices: ["つめたい", "あかるい", "ながい", "やさしい"], explain: "あついの はんたいは つめたい だね。" },
+      { prompt: "「ひろい」と はんたいに ちかい ことばは？", answer: "せまい", choices: ["せまい", "たかい", "おもい", "はやい"], explain: "ひろいの はんたいは せまい だね。" },
+      { prompt: "「さいご」の まえに くる ことばは？", answer: "つぎ", choices: ["つぎ", "きのう", "そと", "みぎ"], explain: "じゅんばんは、さいしょ、つぎ、さいご だね。" },
+      { prompt: "「ゆき」と かんけいが ふかい きせつは？", answer: "ふゆ", choices: ["ふゆ", "なつ", "はる", "あき"], explain: "ゆきは ふゆに ふることが 多いね。" },
+      { prompt: "「よむ」と いっしょに つかいやすい ものは？", answer: "ほん", choices: ["ほん", "くつ", "さら", "はさみ"], explain: "ほんを よむ、というね。" },
+      { prompt: "「まえ」と はんたいに ちかい ことばは？", answer: "うしろ", choices: ["うしろ", "した", "ひだり", "なか"], explain: "まえの はんたいは うしろ だね。" },
+      { prompt: "「はやい」と はんたいに ちかい ことばは？", answer: "おそい", choices: ["おそい", "あまい", "ひくい", "ちかい"], explain: "はやいの はんたいは おそい だね。" }
     ];
     var s = sets[rand(0, sets.length - 1)];
     return {
@@ -1752,14 +1785,14 @@
 
   function makeReadingQuestion() {
     var qs = [
-      { prompt: "「ねこが ねています。」ねこは なにを してる？", answer: "ねてる", choices: ["ねてる", "とんでる", "ないてる"], explain: "ねこは ねているね。" },
-      { prompt: "「あめが ふっています。」ふっているのは？", answer: "あめ", choices: ["あめ", "ゆき", "はな"], explain: "ふっているのは あめだね。" },
-      { prompt: "「みわは えを かきます。」みわは なにを かく？", answer: "え", choices: ["え", "ごはん", "くつ"], explain: "みわは えを かくね。" },
-      { prompt: "「うさぎが にんじんを たべます。」たべるものは？", answer: "にんじん", choices: ["にんじん", "さかな", "ぼうし"], explain: "うさぎは にんじんを たべるね。" },
-      { prompt: "「ほしが きらきら ひかります。」ひかるのは？", answer: "ほし", choices: ["ほし", "ねこ", "りんご"], explain: "ほしが ひかるね。" },
-      { prompt: "「みわは かさを もちました。そとは あめです。」みわが もったものは？", answer: "かさ", choices: ["かさ", "くつ", "ほん"], explain: "あめなので かさを もったね。" },
-      { prompt: "「ねこは はこに はいりました。はこの なかで ねています。」ねこは どこに いる？", answer: "はこ", choices: ["はこ", "そら", "うみ"], explain: "ねこは はこの なかに いるね。" },
-      { prompt: "「りんごを 2こ かいました。あとで 1こ たべました。」たべたものは？", answer: "りんご", choices: ["りんご", "みかん", "ぱん"], explain: "たべたのは りんごだね。" }
+      { prompt: "「みわは あさ、みずを やりました。ひるに はなが さいていました。」みわが みずを やったのは？", answer: "あさ", choices: ["あさ", "ひる", "よる"], explain: "文に あさ、みずを やった とあるね。" },
+      { prompt: "「そとは あめです。みわは くつばこから ながぐつを だしました。」みわが はくものは？", answer: "ながぐつ", choices: ["ながぐつ", "ぼうし", "てぶくろ"], explain: "あめの日に ながぐつを だしたね。" },
+      { prompt: "「ゆうたは ほんを よみおわって、しおりを つくえに おきました。」しおりを おいた ところは？", answer: "つくえ", choices: ["つくえ", "かばん", "いす"], explain: "しおりは つくえに おいたね。" },
+      { prompt: "「バスが きました。みわは いちばん うしろの せきに すわりました。」みわが すわったのは？", answer: "うしろ", choices: ["うしろ", "まえ", "まんなか"], explain: "いちばん うしろの せきに すわったね。" },
+      { prompt: "「はじめに てを あらいます。つぎに おべんとうを たべます。」さきに することは？", answer: "てをあらう", choices: ["てをあらう", "たべる", "かえる"], explain: "はじめに てを あらうね。" },
+      { prompt: "「みわは あかい かみで はなを つくりました。青い かみは のこしました。」つかった かみは？", answer: "あかい", choices: ["あかい", "青い", "白い"], explain: "あかい かみで はなを つくったね。" },
+      { prompt: "「きょうは えんそくです。みわは おにぎりと すいとうを かばんに 入れました。」かばんに 入れたものは？", answer: "すいとう", choices: ["すいとう", "くつ", "まくら"], explain: "おにぎりと すいとうを 入れたね。" },
+      { prompt: "「おとうとは ねつが あるので、こうえんへ いきませんでした。」いかなかった わけは？", answer: "ねつ", choices: ["ねつ", "あめ", "ねむい"], explain: "ねつが あるので いかなかったね。" }
     ];
     var q = qs[rand(0, qs.length - 1)];
     return {
@@ -1774,11 +1807,12 @@
 
   function makeParticleQuestion() {
     var qs = [
-      { prompt: "「みわ（　）えを かく。」に はいる ことばは？", answer: "は", choices: ["は", "を", "へ"], explain: "だれがするかをいうときは「みわは」だね。" },
-      { prompt: "「ねこ（　）ごはんを たべる。」に はいる ことばは？", answer: "が", choices: ["が", "を", "に"], explain: "だれがするかをいうときは「ねこが」だね。" },
-      { prompt: "「りんご（　）たべる。」に はいる ことばは？", answer: "を", choices: ["を", "は", "へ"], explain: "なにをするかをいうときは「りんごを」だね。" },
-      { prompt: "「がっこう（　）いく。」に はいる ことばは？", answer: "へ", choices: ["へ", "を", "が"], explain: "いくところをいうときは「がっこうへ」だね。" },
-      { prompt: "「つくえ（　）ほんを おく。」に はいる ことばは？", answer: "に", choices: ["に", "を", "は"], explain: "おくところをいうときは「つくえに」だね。" }
+      { prompt: "「みわは はさみ（　）かみを きる。」に はいる ことばは？", answer: "で", choices: ["で", "を", "へ"], explain: "どうぐを つかうときは「はさみで」だね。" },
+      { prompt: "「ともだち（　）いっしょに あそぶ。」に はいる ことばは？", answer: "と", choices: ["と", "を", "に"], explain: "いっしょの 人をいうときは「ともだちと」だね。" },
+      { prompt: "「いえ（　）がっこうまで あるく。」に はいる ことばは？", answer: "から", choices: ["から", "より", "で"], explain: "はじまりの ところは「いえから」だね。" },
+      { prompt: "「がっこう（　）こうえんへ いく。」に はいる ことばは？", answer: "から", choices: ["から", "まで", "を"], explain: "どこから いくかをいうときは「がっこうから」だね。" },
+      { prompt: "「みわ（　）ゆうたの ほうが せが たかい。」に はいる ことばは？", answer: "より", choices: ["より", "まで", "を"], explain: "くらべるときは「みわより」だね。" },
+      { prompt: "「えんぴつ（　）ノートに なまえを かく。」に はいる ことばは？", answer: "で", choices: ["で", "に", "へ"], explain: "えんぴつで かく、というね。" }
     ];
     var q = qs[rand(0, qs.length - 1)];
     return {
