@@ -30,6 +30,7 @@
   body {
     margin: 0;
     min-height: 100vh;
+    min-height: 100dvh;
     font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
     color: var(--ink);
     background:
@@ -801,6 +802,265 @@
       margin: 0 auto;
     }
   }
+
+  @media (min-width: 761px) and (max-width: 1120px) {
+    body {
+      padding: 10px;
+    }
+    .app {
+      width: 100%;
+    }
+    .topbar {
+      margin-bottom: 8px;
+    }
+    .brand {
+      font-size: clamp(22px, 3vw, 31px);
+    }
+    .btn.small {
+      min-height: 40px;
+      border-radius: 14px;
+      font-size: 15px;
+      padding: 8px 12px;
+    }
+    .card {
+      border-radius: 22px;
+      padding: clamp(12px, 1.8vw, 18px);
+    }
+    .title-stage {
+      min-height: calc(100dvh - 74px);
+      padding: 18px 18px 20px;
+    }
+    .title-yellow {
+      font-size: clamp(38px, 6vw, 64px);
+    }
+    .title-main {
+      font-size: clamp(44px, 7vw, 78px);
+    }
+    .tile-title span {
+      min-width: clamp(44px, 5.5vw, 62px);
+      min-height: clamp(44px, 5.5vw, 62px);
+      font-size: clamp(25px, 4vw, 44px);
+    }
+    .title-actions {
+      margin-top: 14px;
+    }
+    .theme-grid {
+      margin: 8px 0 12px;
+    }
+    .theme-card {
+      min-height: 66px;
+      padding: 8px 6px;
+      border-radius: 18px;
+    }
+    .game-grid {
+      grid-template-columns: minmax(260px, 0.78fr) minmax(360px, 1.22fr);
+      gap: 10px;
+      align-items: start;
+    }
+    .game-grid > .card {
+      min-width: 0;
+      padding: 12px;
+    }
+    .game-grid #gameArt {
+      max-width: min(100%, 340px);
+      margin: 0 auto;
+      padding: 8px;
+      border-radius: 20px;
+    }
+    .progress {
+      gap: 6px;
+      margin: 8px 0 7px;
+    }
+    .dot {
+      width: 26px;
+      height: 26px;
+      border-width: 3px;
+    }
+    .mini-status {
+      margin-top: 6px;
+      font-size: 14px;
+    }
+    .question-card {
+      min-height: 0;
+    }
+    .q-label {
+      padding: 6px 10px;
+      margin-bottom: 7px;
+      font-size: 14px;
+    }
+    .question {
+      font-size: clamp(22px, 3vw, 32px);
+      line-height: 1.18;
+      margin: 2px 0 10px;
+    }
+    .choices {
+      gap: 8px;
+      margin-top: 0;
+    }
+    .choice {
+      min-height: 56px;
+      border-width: 3px;
+      border-radius: 18px;
+      padding: 8px;
+      font-size: clamp(21px, 3vw, 28px);
+    }
+    .feedback {
+      min-height: 52px;
+      margin-top: 8px;
+      border-width: 2px;
+      border-radius: 18px;
+      padding: 8px 10px;
+      font-size: clamp(15px, 2vw, 19px);
+      line-height: 1.28;
+    }
+    .color-picker {
+      margin-top: 8px;
+    }
+    .tool-section {
+      margin-top: 7px;
+    }
+    .tool-label {
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+    .tool-grid {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .color-swatch {
+      aspect-ratio: auto;
+      height: 38px;
+      min-height: 0;
+      border-width: 3px;
+      border-radius: 13px;
+    }
+    .color-swatch.glitter::after {
+      inset: auto 3px 3px;
+      font-size: 10px;
+    }
+    .color-swatch.eraser {
+      font-size: 12px;
+    }
+    .brush-size-picker {
+      gap: 6px;
+      margin-top: 7px;
+    }
+    .brush-size-btn {
+      min-height: 38px;
+      border-radius: 14px;
+      font-size: 13px;
+    }
+    #gameScreen.paint-choice-active .question {
+      font-size: clamp(20px, 2.6vw, 27px);
+      margin-bottom: 7px;
+    }
+    #gameScreen.paint-choice-active .choices {
+      display: none;
+    }
+    #gameScreen.paint-choice-active .choice {
+      min-height: 42px;
+      border-radius: 14px;
+      padding: 5px 7px;
+      font-size: clamp(18px, 2.5vw, 23px);
+    }
+    #gameScreen.paint-choice-active .feedback {
+      min-height: 42px;
+      margin-top: 6px;
+    }
+    #gameScreen.paint-choice-active .next-row.show {
+      position: fixed;
+      right: max(16px, env(safe-area-inset-right));
+      bottom: max(16px, env(safe-area-inset-bottom));
+      z-index: 60;
+      margin: 0;
+      width: min(180px, 28vw);
+    }
+    #gameScreen.paint-choice-active .next-row.show .btn {
+      min-height: 44px;
+      border-radius: 16px;
+      padding: 8px 12px;
+      font-size: 18px;
+      box-shadow: 0 8px 18px rgba(185, 156, 255, 0.36);
+    }
+  }
+
+  @media (min-width: 761px) and (max-width: 1120px) and (max-height: 850px) {
+    body {
+      padding: 8px;
+    }
+    .topbar {
+      margin-bottom: 6px;
+    }
+    .brand {
+      font-size: clamp(20px, 2.5vw, 26px);
+    }
+    .card {
+      padding: 10px;
+    }
+    .title-stage {
+      min-height: calc(100dvh - 72px);
+      padding: 14px;
+    }
+    .title-copy {
+      gap: 8px;
+    }
+    .title-yellow {
+      font-size: clamp(34px, 5vw, 54px);
+    }
+    .title-main {
+      font-size: clamp(38px, 6vw, 64px);
+    }
+    .studio-bubbles span {
+      width: 36px;
+      height: 36px;
+      font-size: 17px;
+    }
+    .title-actions {
+      gap: 9px;
+      margin-top: 12px;
+    }
+    .btn {
+      min-height: 52px;
+      border-radius: 18px;
+      padding: 12px 14px;
+      font-size: clamp(18px, 2.4vw, 23px);
+    }
+    .game-grid {
+      gap: 8px;
+    }
+    .game-grid #gameArt {
+      max-width: min(100%, 300px);
+      padding: 7px;
+    }
+    .progress {
+      margin: 6px 0 5px;
+    }
+    .dot {
+      width: 23px;
+      height: 23px;
+    }
+    .question {
+      font-size: clamp(20px, 2.6vw, 28px);
+      margin-bottom: 8px;
+    }
+    .choice {
+      min-height: 50px;
+      font-size: clamp(19px, 2.6vw, 25px);
+    }
+    .feedback {
+      min-height: 46px;
+      padding: 7px 9px;
+    }
+    .tool-grid {
+      gap: 5px;
+    }
+    .color-swatch {
+      height: 34px;
+    }
+    .brush-size-btn {
+      min-height: 34px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -941,6 +1201,11 @@
     { color: "#0057ff" },
     { color: "#7fddff" },
     { color: "#7ed957", glitter: true },
+    { color: "#fff7ad", glitter: true },
+    { color: "#ffb7d9", glitter: true },
+    { color: "#c7f0ff", glitter: true },
+    { color: "#d9c2ff", glitter: true },
+    { color: "#c9ffb8", glitter: true },
     { eraser: true }
   ];
   var brushSizes = [
@@ -1235,6 +1500,7 @@
   function hideColorPicker() {
     $("colorPicker").classList.remove("show");
     $("colorPicker").innerHTML = "";
+    $("gameScreen").classList.remove("paint-choice-active");
     hideBrushSizePicker();
   }
 
@@ -1247,6 +1513,7 @@
     var picker = $("colorPicker");
     picker.innerHTML = "";
     picker.classList.add("show");
+    $("gameScreen").classList.add("paint-choice-active");
     $("feedback").textContent = praiseText() + "　すきな いろや けしごむを えらんでね。";
     if (session && imageThemes[session.theme]) {
       renderBrushSizePicker();
