@@ -1241,7 +1241,7 @@
         <button data-mode="mix" class="btn modeBtn">まぜまぜ</button>
       </div>
       <div class="parent-note">
-        とーと用メモ：通常モードでも、過去に間違えた問題が少しだけ混ざります。遊びながら復習する仕組みです。
+        とーと用メモ：みわの「よめた・わかった・できた」を大切に、3＋4、4＋3、4＋5、5＋4、2＋3、3＋2を中心に出題します。通常モードでも、過去に間違えた問題が少しだけ混ざります。
       </div>
     </div>
   </section>
@@ -1361,7 +1361,9 @@
   };
 
   var skillNames = {
-    math_add: "たしざん",
+    math_add: "たしざん（10まで）",
+    math_focus: "にがてなたしざん",
+    instruction: "もんだいをよむ",
     math_sub: "ひきざん",
     number_sense: "かずの感覚",
     kana: "ひらがな",
@@ -1795,7 +1797,7 @@
 
   function startSession(mode) {
     var useMode = mode;
-    if (mode === "weak" && data.mistakes.length === 0) useMode = "mix";
+    // 記録がまだなくても、事前に分かっている「にがて」を練習する。
 
     session = {
       mode: useMode,
@@ -1999,12 +2001,15 @@
       return questionFromMistake();
     }
     if (mode === "weak") {
-      if (data.mistakes.length > 0 && Math.random() < 0.75) return questionFromMistake();
-      return makeEasyQuestion();
+      if (data.mistakes.length > 0 && Math.random() < 0.55) return questionFromMistake();
+      return Math.random() < 0.78 ? makeFocusAddQuestion() : makeReadCarefullyQuestion();
     }
     if (mode === "math") return makeMathQuestion();
     if (mode === "jp") return makeJapaneseQuestion();
-    return Math.random() < 0.5 ? makeMathQuestion() : makeJapaneseQuestion();
+    var mixed = Math.random();
+    if (mixed < 0.48) return makeMathQuestion();
+    if (mixed < 0.76) return makeReadCarefullyQuestion();
+    return makeJapaneseQuestion();
   }
 
   function questionFromMistake() {
@@ -2021,36 +2026,43 @@
   }
 
   function makeEasyQuestion() {
-    if (Math.random() < 0.5) {
-      var a = rand(5, 10);
-      var b = rand(1, 8);
-      if (a + b > 18) b = 18 - a;
-      if (b < 1) b = 1;
-      if (a + b < 10) b = 10 - a;
-      var ans = a + b;
-      return buildQuestion("さんすう", "math_add", a + " + " + b + " = ？", ans, "あわせると " + ans + " だね。");
-    }
-    return makeJapaneseQuestion();
+    return Math.random() < 0.72 ? makeKnownAddQuestion() : makeReadCarefullyQuestion();
   }
 
   function makeMathQuestion() {
     var r = Math.random();
-    if (r < 0.32) return makeAddQuestion();
-    if (r < 0.62) return makeSubQuestion();
-    if (r < 0.82) return makeNumberSenseQuestion();
-    return makeWordMathQuestion();
+    if (r < 0.58) return makeFocusAddQuestion();
+    if (r < 0.73) return makeKnownAddQuestion();
+    if (r < 0.88) return makeWordMathQuestion();
+    return makeReadCarefullyQuestion();
   }
 
   function makeAddQuestion() {
-    if (skillStrong("math_add") && Math.random() < 0.25) return makeThreeNumberQuestion();
-    var a = rand(skillStrong("math_add") ? 7 : 6, 14);
-    var b = rand(2, 9);
-    var limit = 20;
-    if (a + b > limit) b = limit - a;
-    if (b < 1) b = 1;
-    if (a + b < 10) b = Math.min(9, 10 - a);
+    return makeFocusAddQuestion();
+  }
+
+  // みわが今練習したい6つ。順番を入れ替えても答えが同じことを
+  // 毎回ことばにして、得意な交換式から理解をつなぐ。
+  function makeFocusAddQuestion() {
+    var pairs = [[3,4],[4,3],[4,5],[5,4],[2,3],[3,2]];
+    var pair = pairs[rand(0, pairs.length - 1)];
+    var a = pair[0];
+    var b = pair[1];
     var ans = a + b;
-    return buildQuestion("さんすう", "math_add", a + " + " + b + " = ？", ans, a + " と " + b + " を あわせると " + ans + "。");
+    return buildQuestion(
+      "よくみる たしざん",
+      "math_focus",
+      "ゆびで かずを たしかめよう。 " + a + " ＋ " + b + " ＝ ？",
+      ans,
+      a + "と" + b + "で " + ans + "。じゅんばんを かえて " + b + "＋" + a + "でも " + ans + "だよ。"
+    );
+  }
+
+  function makeKnownAddQuestion() {
+    var pairs = [[1,5],[5,1],[2,6],[6,2]];
+    var pair = pairs[rand(0, pairs.length - 1)];
+    var ans = pair[0] + pair[1];
+    return buildQuestion("できる たしざん", "math_add", pair[0] + " ＋ " + pair[1] + " ＝ ？", ans, "そう！ " + pair[0] + "と" + pair[1] + "で " + ans + "だね。");
   }
 
   function makeThreeNumberQuestion() {
@@ -2111,33 +2123,37 @@
   }
 
   function makeWordMathQuestion() {
-    var r = Math.random();
-    if (r < 0.42) {
-      var a = rand(8, 15);
-      var b = rand(3, 8);
-      if (a + b > 20) b = 20 - a;
-      if (b < 1) b = 1;
-      var ans = a + b;
-      return buildQuestion("ぶんしょうだい", "math_add", "シールが " + a + "まい。あとで " + b + "まい もらった。ぜんぶで？", ans, "ぜんぶで " + ans + "まい だね。");
-    }
-    if (r < 0.82) {
-      var a2 = rand(12, 20);
-      var b2 = rand(3, 9);
-      if (b2 >= a2) b2 = a2 - 1;
-      var ans2 = a2 - b2;
-      return buildQuestion("ぶんしょうだい", "math_sub", "えんぴつが " + a2 + "ほん。" + b2 + "ほん つかった。のこりは？", ans2, "のこりは " + ans2 + "ほん だね。");
-    }
-    var big = rand(12, 20);
-    var small = rand(5, big - 3);
-    var diff = big - small;
-    return buildQuestion("ぶんしょうだい", "math_sub", "あかい はなが " + big + "こ。しろい はなが " + small + "こ。ちがいは？", diff, "ちがいは " + diff + "こ だね。");
+    var stories = [
+      [3,4,"あかい おはなが 3こ。きいろい おはなが 4こ。おはなは ぜんぶで なんこ？"],
+      [4,3,"ねこが 4ひき。あとから 3びき きました。ぜんぶで なんびき？"],
+      [4,5,"シールが 4まい。5まい もらいました。ぜんぶで なんまい？"],
+      [5,4,"いちごが 5こ。おさらに 4こ あります。ぜんぶで なんこ？"],
+      [2,3,"あおい ふうせんが 2こ。ピンクの ふうせんが 3こ。ぜんぶで なんこ？"],
+      [3,2,"えんぴつが 3ぼん。あと 2ほん あります。ぜんぶで なんぼん？"]
+    ];
+    var s = stories[rand(0, stories.length - 1)];
+    var ans = s[0] + s[1];
+    return buildQuestion("さいごまで よもう", "instruction", "【ぜんぶで】を みつけてね。 " + s[2], ans, "「ぜんぶで」だから、" + s[0] + "＋" + s[1] + "。こたえは " + ans + "だね。");
+  }
+
+  function makeReadCarefullyQuestion() {
+    var qs = [
+      { prompt:"あめが ふっています。みわは あかい かさと、きいろい ながぐつを もちました。もんだい：かさは なにいろ？", answer:"あか", choices:["あか","きいろ","あお"], explain:"きかれたのは『かさ』。文には『あかい かさ』とあるね。" },
+      { prompt:"ねこが 3びき、いぬが 2ひき います。もんだい：いぬは なんびき？", answer:"2ひき", choices:["2ひき","3びき","5ひき"], explain:"きかれたのは『いぬ』。2ひき だね。" },
+      { prompt:"みわは あさに ほんを よみ、ひるに えを かきました。もんだい：ほんを よんだのは いつ？", answer:"あさ", choices:["あさ","ひる","よる"], explain:"『ほんを よんだ』ところを見ると、あさ だね。" },
+      { prompt:"あおい はこに りんごを 4こ、しろい はこに りんごを 3こ いれました。もんだい：あおい はこは なんこ？", answer:"4こ", choices:["4こ","3こ","7こ"], explain:"きかれたのは『あおい はこ』。4こ だね。" },
+      { prompt:"うさぎは にんじんを 5ほん、ねこは さかなを 4ひき もっています。もんだい：ねこが もっているのは？", answer:"さかな", choices:["さかな","にんじん","りんご"], explain:"きかれたのは『ねこ』。もっているのは さかな だね。" }
+    ];
+    var q = qs[rand(0, qs.length - 1)];
+    return { label:"なにを きかれた？", skill:"instruction", prompt:q.prompt, choices:shuffle(q.choices.slice(0)), answer:q.answer, explain:q.explain };
   }
 
   function makeJapaneseQuestion() {
     var r = Math.random();
-    if (r < 0.25) return makeKanaQuestion();
-    if (r < 0.5) return makeVocabQuestion();
-    if (r < 0.75) return makeReadingQuestion();
+    if (r < 0.50) return makeReadCarefullyQuestion();
+    if (r < 0.70) return makeReadingQuestion();
+    if (r < 0.82) return makeKanaQuestion();
+    if (r < 0.92) return makeVocabQuestion();
     return makeParticleQuestion();
   }
 
